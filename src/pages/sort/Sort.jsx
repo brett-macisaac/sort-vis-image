@@ -83,7 +83,7 @@ function Sort({})
 
             console.log("Canvas is ready");
 
-            rfImage.current = new SortableImage("src/assets/images/mona_lisa_tiny.jpg", rfCanvas.current, ranges.size);
+            rfImage.current = new SortableImage(imageMonaLisa, rfCanvas.current, ranges.size);
 
             if (!rfBtnImageUpload.current)
             {
