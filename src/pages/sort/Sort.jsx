@@ -139,16 +139,19 @@ function Sort({})
 
             rfReRender.current();
 
-            // Populate the sort actions (if in 'sorting mode').
+            // Populate the sort actions.
+            setIsLoading(true);
+            await utils.sleepFor(100);
+            rfImage.current.reset();
             if (pSorting)
             {
-                // Add a loading screen here.
-                setIsLoading(true);
-                rfImage.current.reset();
-                await utils.sleepFor(100);
                 sortAlgos[sortAlgoNames[stIndexSelectedSortAlgo]](rfImage.current, stIsAscending);
-                setIsLoading(false);
             }
+            else
+            {
+                rfImage.current.shuffleSnapshot();
+            }
+            setIsLoading(false);
 
             let lSortActions = rfImage.current.sortActions;
             let lLengthSortActions = rfImage.current.lengthSortActions;
@@ -284,10 +287,6 @@ function Sort({})
     const handleBtnShuffle = useCallback(
         async () =>
         {
-            rfImage.current.reset();
-
-            await rfImage.current.shuffleSnapshot();
-
             await handleBtnPlayPause(false);
         },
         [ handleBtnPlayPause ]

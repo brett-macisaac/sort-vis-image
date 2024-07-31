@@ -189,7 +189,7 @@ class SortableImage
     /*
     * Populates the sort actions array with actions that result in the elements being shuffled.
     */
-    async shuffleSnapshot()
+    shuffleSnapshot()
     {
         this.saveSnapshot();
 
@@ -203,25 +203,6 @@ class SortableImage
         // console.log(this.sortActions);
 
         this.loadSnapshot();
-    }
-
-    async Sort(aSorter, aAscending)
-    {
-        this.Reset();
-        
-        await aSorter(this, aAscending);
-        //await QuickSort(gArrayIndexes, gImageData.data, true);
-        //await MergeSortIterative(gArrayIndexes, gImageData.data, true);
-        //await SelectionSort(gArrayIndexes, gImageData.data, true);
-
-        // console.log("Writes: " + PixelManager.countWrites);
-
-        this.Update();
-
-        //this.#fCanvasContext.putImageData(this.#fImageData, 0, 0);
-
-        // console.log("Sorting complete");
-        // console.log(gArrayIndexes);
     }
 
     compare(pIndexA, pOperator, pIndexB)
