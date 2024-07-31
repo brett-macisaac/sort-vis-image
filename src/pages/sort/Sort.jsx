@@ -14,6 +14,9 @@ import SortAction from './SortAction.js';
 
 import SortableImage from './SortableImage.js';
 
+// It's necessary to import the image for it to be included in the build folder.
+import imageMonaLisa from '../../assets/images/mona_lisa_tiny.jpg';
+
 function Sort({}) 
 {
     const [ stIndexSelectedSortAlgo, setIndexSelectedSortAlgo ] = useState(0);
