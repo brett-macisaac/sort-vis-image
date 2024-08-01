@@ -6,3 +6,4 @@ TODO:
 - Implement the direction change feature.
 - Implement the inactive style for the upload image button.
 - try to centre the buttons on the bottom when the screen is too wide.
+- do a vite GitHub error report with private class variables. First check chrome version, vite version, etc. Make a separate repro.

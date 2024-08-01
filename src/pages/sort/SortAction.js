@@ -23,7 +23,7 @@ class SortAction
     };
 
     // The type of action (should be a value of SortAction.Type)
-    #fType;
+    fType;
 
     /*
     * if #fType is either Type.Swap or Type.Compare
@@ -31,7 +31,7 @@ class SortAction
       else if #fType is Type.Set
         - The index at which to store the given value (#fValueB).
     */
-    #fValueA;
+    fValueA;
 
     /*
     * if #fType is either Type.Swap or Type.Compare
@@ -39,7 +39,7 @@ class SortAction
       else if #fType is Type.Set
         - The value to set at the given index (#fValueA).
     */
-    #fValueB;
+    fValueB;
 
     /*
     * if #fType is either Type.Swap or Type.Compare
@@ -47,26 +47,26 @@ class SortAction
       else if #fType is Type.Set
         - The colour at which to set at the corresponding index.
     */
-    #fValueC;
+    fValueC;
 
-    constructor(pType, pValueA, pValueB, pValueC)
+    constructor(pType = "", pValueA = 0, pValueB = 0, pValueC = "")
     {
-        this.#fType = pType;
-        this.#fValueA = pValueA;
-        this.#fValueB = pValueB;
-        this.#fValueC = pValueC;
+        this.fType = pType;
+        this.fValueA = pValueA;
+        this.fValueB = pValueB;
+        this.fValueC = pValueC;
     }
 
-    get type() { return this.#fType; }
+    get type() { return this.fType; }
 
-    get valueA() { return this.#fValueA; }
-    set valueA(pValueA) { this.#fValueA = pValueA; }
+    get valueA() { return this.fValueA; }
+    set valueA(pValueA) { this.fValueA = pValueA; }
 
-    get valueB() { return this.#fValueB; }
-    set valueB(pValueB) { this.#fValueB = pValueB; }
+    get valueB() { return this.fValueB; }
+    set valueB(pValueB) { this.fValueB = pValueB; }
 
-    get valueC() { return this.#fValueC; }
-    set valueC(pValueC) { this.#fValueC = pValueC; }
+    get valueC() { return this.fValueC; }
+    set valueC(pValueC) { this.fValueC = pValueC; }
 }
 
 export default SortAction;

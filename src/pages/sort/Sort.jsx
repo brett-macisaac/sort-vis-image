@@ -8,10 +8,6 @@ import { ranges, sortAlgoNames, sortAlgos } from './sort_resources_image.js';
 
 import { utils } from '../../standard_ui/standard_ui';
 
-import Elements from "./Elements.js"
-
-import SortAction from './SortAction.js';
-
 import SortableImage from './SortableImage.js';
 
 // It's necessary to import the image for it to be included in the build folder.
@@ -72,6 +68,42 @@ function Sort({})
 
     const rfImage = useRef(undefined);
 
+    // const uploadImage = useCallback(
+    //     () => 
+    //     {
+    //         const lFile = rfBtnImageUpload.current.files[0];
+
+    //         const lReader = new FileReader();
+
+    //         lReader.onload = function()
+    //         {
+    //             let lMaxDimensions = rfMaxImageDimensions.current ? rfMaxImageDimensions.current : { width: 300, height: 300 };
+
+    //             //console.log(lReader.result);
+    //             rfImage.current.setImage(lReader.result, lMaxDimensions.width, lMaxDimensions.height);
+    //         }
+
+    //         lReader.readAsDataURL(lFile);
+    //     },
+    //     []
+    // );
+    const uploadImage = () => 
+    {
+        const lFile = rfBtnImageUpload.current.files[0];
+
+        const lReader = new FileReader();
+
+        lReader.onload = function()
+        {
+            let lMaxDimensions = rfMaxImageDimensions.current ? rfMaxImageDimensions.current : { width: 300, height: 300 };
+
+            //console.log(lReader.result);
+            rfImage.current.setImage(lReader.result, lMaxDimensions.width, lMaxDimensions.height);
+        }
+
+        lReader.readAsDataURL(lFile);
+    }
+
     useEffect(
         () => 
         {
@@ -91,22 +123,10 @@ function Sort({})
                 return;
             }
 
-            rfBtnImageUpload.current.onchange = function() 
-            {
-                const lFile = rfBtnImageUpload.current.files[0];
+            rfBtnImageUpload.current.addEventListener("change", uploadImage);
+            // rfBtnImageUpload.current.onchange = uploadImage;
 
-                const lReader = new FileReader();
-
-                lReader.onload = function()
-                {
-                    let lMaxDimensions = rfMaxImageDimensions.current ? rfMaxImageDimensions.current : { width: 300, height: 300 };
-
-                    //console.log(lReader.result);
-                    rfImage.current.setImage(lReader.result, lMaxDimensions.width, lMaxDimensions.height);
-                }
-
-                lReader.readAsDataURL(lFile);
-            }
+            return function() { rfBtnImageUpload.current.removeEventListener("change", uploadImage); };
         },
         []
     );
@@ -155,8 +175,11 @@ function Sort({})
 
             let lSortActions = rfImage.current.sortActions;
             let lLengthSortActions = rfImage.current.lengthSortActions;
-            console.log(lSortActions);
-            console.log(lLengthSortActions);
+            // console.log(lSortActions);
+            console.log(`Number of sort actions: ${lLengthSortActions}.`);
+
+            // rfIsSorting.current = false;
+            // rfReRender.current();
             // return;
 
             let lGoBack = false;

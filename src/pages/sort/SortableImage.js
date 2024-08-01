@@ -5,81 +5,97 @@ import SortAction from './SortAction.js';
 
 class SortableImage
 {
-    #fCanvas;
+    fCanvas;
 
-    #fCanvasContext;
+    fCanvasContext;
 
-    #fImageData;
+    fImageData;
 
-    #fSnapshotImageData;
+    fSnapshotImageData;
 
-    #fIndexesPixels;
+    fIndexesPixels;
 
-    #fSnapshotIndexesPixels;
+    fSnapshotIndexesPixels;
 
-    #fSortActions;
+    fSortActions;
 
-    #fImageSrc;
+    fImageSrc;
 
     // The maximum number of pixels that the image can be rendered at.
-    #fMaxSize;
+    fMaxSize;
 
-    #fRgbaColourArray
+    fRgbaColourArray
 
-    #fCount = 0;
+    fCount = 0;
     //#fCountWrites = 0;
-    #fMaxCount = 10000;
+    fMaxCount = 10000;
+
+    #fCountActions;
+    #fTime1;
+    #fTime2;
+
+    fCountActionsPublic;
+    fTime1Public;
+    fTime2Public;
 
     constructor(pSrcImg, pCanvas, pMaxSize = 250000)
     {
-        this.#fMaxSize = pMaxSize;
+        this.fMaxSize = pMaxSize;
 
-        this.#fCanvas = pCanvas;
+        this.fCanvas = pCanvas;
 
-        this.#fCanvasContext = this.#fCanvas.getContext('2d');
+        this.fCanvasContext = this.fCanvas.getContext('2d', { willReadFrequently: true });
 
-        this.#fSortActions = [];
-        this.#fSnapshotIndexesPixels = [];
+        this.fSortActions = [];
+        this.fSnapshotIndexesPixels = [];
 
-        this.#fRgbaColourArray = Array.from({ length: 4 });
+        this.fRgbaColourArray = Array.from({ length: 4 });
 
         this.setImage(pSrcImg);
+
+        this.#fCountActions = 0;
+        this.#fTime1 = 0;
+        this.#fTime2 = 0;
+
+        this.fCountActionsPublic = 0;
+        this.fTime1Public = 0;
+        this.fTime2Public = 0;
 
         return;
     }
 
     get length()
     {
-        return this.#fIndexesPixels.length;
+        return this.fIndexesPixels.length;
     }
 
     get canvas()
     {
-        return this.#fCanvas;
+        return this.fCanvas;
     }
 
     get sortActions()
     {
-        return this.#fSortActions;
+        return this.fSortActions;
     }
 
     get lengthSortActions()
     {
-        return this.#fSortActions.length;
+        return this.fSortActions.length;
     }
 
     getIndex(pIndex)
     {
-        return this.#fIndexesPixels[pIndex];
+        return this.fIndexesPixels[pIndex];
     }
 
     SetMaxCount(aMaxCount)
     {
-        this.#fMaxCount = aMaxCount;
+        this.fMaxCount = aMaxCount;
 
-        if (this.#fCount >= this.#fMaxCount)
+        if (this.fCount >= this.fMaxCount)
         {
-            this.#fCount = this.#fMaxCount - 1;
+            this.fCount = this.fMaxCount - 1;
         }
     }
 
@@ -100,9 +116,9 @@ class SortableImage
     {
         if (pSrcImg)
         {
-            this.#fImageSrc = pSrcImg;
+            this.fImageSrc = pSrcImg;
         }
-        else if (!pSrcImg && !(this.#fImageSrc))
+        else if (!pSrcImg && !(this.fImageSrc))
         {
             return;
         }
@@ -110,7 +126,7 @@ class SortableImage
         // The image to display in this.#fCanvas.
         const lImage = new Image();
         lImage.crossOrigin = 'anonymous'; // ???
-        lImage.src = this.#fImageSrc;
+        lImage.src = this.fImageSrc;
         lImage.alt = "Image to sort.";
 
         lImage.addEventListener('load', 
@@ -122,9 +138,9 @@ class SortableImage
                 const lImageSize = lImage.width * lImage.height;
 
                 // Scale the image down to fit the maximum allowed size.
-                if (lImageSize > this.#fMaxSize)
+                if (lImageSize > this.fMaxSize)
                 {
-                    let lScaleFactor = Math.sqrt(this.#fMaxSize / (lImage.width * lImage.height));
+                    let lScaleFactor = Math.sqrt(this.fMaxSize / (lImage.width * lImage.height));
 
                     lImage.width = Math.floor(lScaleFactor * lImage.width);
                     lImage.height = Math.floor(lScaleFactor * lImage.height);
@@ -145,22 +161,22 @@ class SortableImage
                     console.log("Scaled height #2: " + lImage.height);
                 }
 
-                this.#fCanvas.width = lImage.width;
-                this.#fCanvas.height = lImage.height;
+                this.fCanvas.width = lImage.width;
+                this.fCanvas.height = lImage.height;
 
-                this.#fCanvasContext.drawImage(lImage, 0, 0, lImage.width, lImage.height);
+                this.fCanvasContext.drawImage(lImage, 0, 0, lImage.width, lImage.height);
 
-                const lStyleCanvas = window.getComputedStyle(this.#fCanvas);
+                const lStyleCanvas = window.getComputedStyle(this.fCanvas);
 
                 console.log("Canvas width: " + lStyleCanvas.width);
                 console.log("Canvas height: " + lStyleCanvas.height);
 
-                this.#fImageData = this.#fCanvasContext.getImageData(0, 0, parseFloat(lStyleCanvas.width), parseFloat(lStyleCanvas.height));
+                this.fImageData = this.fCanvasContext.getImageData(0, 0, parseFloat(lStyleCanvas.width), parseFloat(lStyleCanvas.height));
 
                 // The number of pixels (and therefore the number of indexes).
-                const lNumPixels = this.#fImageData.data.length / 4;
+                const lNumPixels = this.fImageData.data.length / 4;
 
-                this.#fIndexesPixels = Array.from({ length: lNumPixels }, (element, index) => index);
+                this.fIndexesPixels = Array.from({ length: lNumPixels }, (element, index) => index);
 
                 // console.log("Pixels");
                 // console.log(this.#fImageData);
@@ -168,56 +184,178 @@ class SortableImage
         );
     }
 
-    async Shuffle()
-    {
-        this.Reset();
-
-        const lNumPixels = this.#fIndexesPixels.length;
-
-        for (let i = 0; i < lNumPixels; ++i)
-        {
-            const lIndexRandom = utils.GetRandom(i, lNumPixels - 1);
-
-            await this.swap(i, lIndexRandom);
-        }
-
-        this.Reset();
-
-        this.Update();
-    }
-
     /*
     * Populates the sort actions array with actions that result in the elements being shuffled.
     */
     shuffleSnapshot()
     {
+        // Speed test.
+        // console.log("Speed test:");
+        // let lTime1 = Date.now();
+        // let lTime2 = 0;
+        // let lCount = 0;
+        // for (let i = 1; i < 10000000; ++i)
+        // {
+        //     if (++lCount % 1000000 != 0)
+        //         continue;
+
+        //     lTime2 = Date.now();
+
+        //     const lLoopsPerMs = Math.floor(lCount / (lTime2 - lTime1));
+
+        //     console.log(`Loop #: ${i}`);
+        //     console.log(`Loops per ms: ${lLoopsPerMs}`);
+
+        //     lTime1 = lTime2;
+
+        //     lCount = 0;
+        // }
+
+        // let lCount2 = 0;
+        // let lTime12 = Date.now();
+        // let lTime22 = 0;
+
+        this.fTime1Public = Date.now();
+        this.fTime2Public = 0;
+        this.fCountActionsPublic = 0;
+
+        // this.#fTime1 = Date.now();
+        // this.#fTime2 = 0;
+        // this.#fCountActions = 0;
+
+        // const lDisplayCountFunc1 = () =>
+        // {
+        //     if (++(lCount2) % 100000 != 0)
+        //         return;
+    
+        //     console.log(`Action #${lCount2}`);
+    
+        //     if (lTime12 == 0)
+        //     {
+        //         lTime12 = Date.now();
+        //     }
+        //     else if (lTime22 == 0)
+        //     {
+        //         lTime22 = Date.now();
+    
+        //         const lActionsPerMs = Math.floor(lCount2 / (lTime22 - lTime12));
+    
+        //         console.log(`Actions per ms: ${lActionsPerMs}`);
+    
+        //         lTime12 = lTime22;
+        //         lTime22 = 0;
+        //     }
+        // }
+
+        // const lDisplayCountFunc2 = () =>
+        // {
+        //     if (++(this.fCountActionsPublic) % 100000 != 0)
+        //         return;
+    
+        //     console.log(`Action #${this.fCountActionsPublic}`);
+    
+        //     if (this.fTime1Public == 0)
+        //     {
+        //         this.fTime1Public = Date.now();
+        //     }
+        //     else if (this.fTime2Public == 0)
+        //     {
+        //         this.fTime2Public = Date.now();
+    
+        //         const lActionsPerMs = Math.floor(this.fCountActionsPublic / (this.fTime2Public - this.fTime1Public));
+    
+        //         console.log(`Actions per ms: ${lActionsPerMs}`);
+    
+        //         this.fTime1Public = this.fTime2Public;
+        //         this.fTime2Public = 0;
+        //     }
+        // }
+
+        // const lDisplayCountFunc3 = () =>
+        // {
+        //     if (++(this.#fCountActions) % 100000 != 0)
+        //         return;
+    
+        //     console.log(`Action #${this.#fCountActions}`);
+    
+        //     if (this.#fTime1 == 0)
+        //     {
+        //         this.#fTime1 = Date.now();
+        //     }
+        //     else if (this.#fTime2 == 0)
+        //     {
+        //         this.#fTime2 = Date.now();
+    
+        //         const lActionsPerMs = Math.floor(this.#fCountActions / (this.#fTime2 - this.#fTime1));
+    
+        //         console.log(`Actions per ms: ${lActionsPerMs}`);
+    
+        //         this.#fTime1 = this.#fTime2;
+        //         this.#fTime2 = 0;
+        //     }
+        // }
+
         this.saveSnapshot();
 
-        for (let i = this.#fIndexesPixels.length - 1; i > 0; --i)
+        const lStartTime = Date.now();
+
+        console.log(`Start Time: ${lStartTime}`);
+
+        for (let i = this.fIndexesPixels.length - 1; i > 0; --i)
         {
             const lIndexRandom = utils.getRandomInt(0, i);
 
             this.swap(i, lIndexRandom);
+
+            // Speed test.
+            // this.DisplayCountFunc(i, 1);
         }
 
-        // console.log(this.sortActions);
+        // Speed test.
+        const lEndTime = Date.now();
+        console.log(`End Time: ${lEndTime}`);
+        console.log(`Length: ${lEndTime - lStartTime}`);
 
         this.loadSnapshot();
     }
 
+    DisplayCountFunc(pIndexA, pIndexB)
+    {
+        if (++(this.fCountActionsPublic) % 100000 != 0)
+            return;
+
+        console.log(`Action #${this.fCountActionsPublic}`);
+
+        if (this.fTime1Public == 0)
+        {
+            this.fTime1Public = Date.now();
+        }
+        else if (this.fTime2Public == 0)
+        {
+            this.fTime2Public = Date.now();
+
+            const lActionsPerMs = Math.floor(this.fCountActionsPublic / (this.fTime2Public - this.fTime1Public));
+
+            console.log(`Actions per ms: ${lActionsPerMs}`);
+
+            this.fTime1Public = this.fTime2Public;
+            this.fTime2Public = 0;
+        }
+    }
+
     compare(pIndexA, pOperator, pIndexB)
     {
-        return utils.compare(this.#fIndexesPixels[pIndexA], pOperator, this.#fIndexesPixels[pIndexB]);
+        return utils.compare(this.fIndexesPixels[pIndexA], pOperator, this.fIndexesPixels[pIndexB]);
     }
 
     compareValue(pIndex, pOperator, pValue)
     {
-        return utils.compare(this.#fIndexesPixels[pIndex], pOperator, pValue);
+        return utils.compare(this.fIndexesPixels[pIndex], pOperator, pValue);
     }
 
     swap(pIndexA, pIndexB, pRecordSortAction = true)
     {
-        const lPixelArray = this.#fImageData.data;
+        const lPixelArray = this.fImageData.data;
 
         const lIndexRed1 = pIndexA * 4;
         const lIndexRed2 = pIndexB * 4;
@@ -232,13 +370,14 @@ class SortableImage
         }
 
         // Also swap the indexes.
-        const lIndex1 = this.#fIndexesPixels[pIndexA]
-        this.#fIndexesPixels[pIndexA] = this.#fIndexesPixels[pIndexB];
-        this.#fIndexesPixels[pIndexB] = lIndex1;
+        const lIndex1 = this.fIndexesPixels[pIndexA];
+        this.fIndexesPixels[pIndexA] = this.fIndexesPixels[pIndexB];
+        this.fIndexesPixels[pIndexB] = lIndex1;
 
         if (pRecordSortAction)
         {
-            this.#fSortActions.push(new SortAction(SortAction.Type.Swap, pIndexA, pIndexB));
+            this.fSortActions.push(new SortAction(SortAction.Type.Swap, pIndexA, pIndexB));
+            this.displayActionCount();
         }
     }
 
@@ -253,43 +392,74 @@ class SortableImage
     */
     setValue(pIndex, pIndexPixel, pColour, pRecordSortAction = true)
     {
-        const lPixelArray = this.#fImageData.data;
+        const lPixelArray = this.fImageData.data;
 
         // Set this.#fRgbaColourArray with pColour.
-        hexColourStringToIntArrayInPlace(pColour, this.#fRgbaColourArray);
+        hexColourStringToIntArrayInPlace(pColour, this.fRgbaColourArray);
 
         const lIndexRed = pIndex * 4;
 
         for (let i = 0; i < 4; ++i)
         {
-            lPixelArray[lIndexRed + i] = this.#fRgbaColourArray[i];
+            lPixelArray[lIndexRed + i] = this.fRgbaColourArray[i];
         }
 
-        this.#fIndexesPixels[pIndex] = pIndexPixel;
+        this.fIndexesPixels[pIndex] = pIndexPixel;
 
         if (pRecordSortAction)
         {
-            this.#fSortActions.push(new SortAction(SortAction.Type.Set, pIndex, pIndexPixel, pColour));
+            this.fSortActions.push(new SortAction(SortAction.Type.Set, pIndex, pIndexPixel, pColour));
+            this.displayActionCount();
         }
+    }
+
+    displayActionCount()
+    {
+        if (++(this.fCountActionsPublic) % 100000 != 0)
+            return;
+
+        if (this.fTime1Public == 0)
+        {
+            this.fTime1Public = Date.now();
+        }
+        else if (this.fTime2Public == 0)
+        {
+            this.fTime2Public = Date.now();
+
+            const lActionsPerMs = Math.floor(this.fCountActionsPublic / (this.fTime2Public - this.fTime1Public));
+
+            console.log(`Actions per ms: ${lActionsPerMs}`);
+
+            this.fTime1Public = this.fTime2Public;
+            this.fTime2Public = 0;
+        }
+
+        this.fCountActionsPublic = 0;
     }
 
     getPixelColour(pIndex)
     {
-        const lPixelArray = this.#fImageData.data;
+        const lPixelArray = this.fImageData.data;
 
         const lIndexRed = pIndex * 4;
 
-        this.#fRgbaColourArray[0] = lPixelArray[lIndexRed];
-        this.#fRgbaColourArray[1] = lPixelArray[lIndexRed + 1];
-        this.#fRgbaColourArray[2] = lPixelArray[lIndexRed + 2];
-        this.#fRgbaColourArray[3] = lPixelArray[lIndexRed + 3];
+        this.fRgbaColourArray[0] = lPixelArray[lIndexRed];
+        this.fRgbaColourArray[1] = lPixelArray[lIndexRed + 1];
+        this.fRgbaColourArray[2] = lPixelArray[lIndexRed + 2];
+        this.fRgbaColourArray[3] = lPixelArray[lIndexRed + 3];
 
-        return intArrayToHexColourString(this.#fRgbaColourArray);
+        return intArrayToHexColourString(this.fRgbaColourArray);
     }
 
     reset()
     {
-        this.#fSortActions = [];
+        this.fSortActions = [];
+
+        // this.#fCountActions = 0;
+        // this.#fTime1 = Date.now();
+
+        this.fCountActionsPublic = 0;
+        this.fTime1Public = Date.now();
     }
 
     /**
@@ -297,33 +467,33 @@ class SortableImage
     */
     saveSnapshot()
     {
-        if (!Array.isArray(this.#fSnapshotIndexesPixels) || this.#fSnapshotIndexesPixels.length != this.#fIndexesPixels.length)
+        if (!Array.isArray(this.fSnapshotIndexesPixels) || this.fSnapshotIndexesPixels.length != this.fIndexesPixels.length)
         {
-            this.#fSnapshotIndexesPixels = Array.from({ length: this.#fIndexesPixels.length });
+            this.fSnapshotIndexesPixels = Array.from({ length: this.fIndexesPixels.length });
         }
 
-        for (let i = 0; i < this.#fIndexesPixels.length; ++i)
+        for (let i = 0; i < this.fIndexesPixels.length; ++i)
         {
-            this.#fSnapshotIndexesPixels[i] = this.#fIndexesPixels[i];
+            this.fSnapshotIndexesPixels[i] = this.fIndexesPixels[i];
         }
 
-        const lPixelArray = this.#fImageData.data;
+        const lPixelArray = this.fImageData.data;
 
-        if (!Array.isArray(this.#fSnapshotImageData) || this.#fSnapshotImageData.length != lPixelArray.length)
+        if (!Array.isArray(this.fSnapshotImageData) || this.fSnapshotImageData.length != lPixelArray.length)
         {
-            this.#fSnapshotImageData = Array.from({ length: lPixelArray.length });
+            this.fSnapshotImageData = Array.from({ length: lPixelArray.length });
         }
 
         for (let i = 0; i < lPixelArray.length; ++i)
         {
-            this.#fSnapshotImageData[i] = lPixelArray[i];
+            this.fSnapshotImageData[i] = lPixelArray[i];
         }
 
-        console.log("Image data:");
-        console.log(this.#fImageData);
+        // console.log("Image data:");
+        // console.log(this.#fImageData);
 
-        console.log("Snapshot image data:");
-        console.log(this.#fSnapshotImageData);
+        // console.log("Snapshot image data:");
+        // console.log(this.#fSnapshotImageData);
     }
 
     /**
@@ -333,28 +503,28 @@ class SortableImage
     */
     loadSnapshot()
     {
-        const lPixelArray = this.#fImageData.data;
+        const lPixelArray = this.fImageData.data;
 
-        if (!Array.isArray(this.#fSnapshotIndexesPixels) || this.#fSnapshotIndexesPixels.length != this.#fIndexesPixels.length)
+        if (!Array.isArray(this.fSnapshotIndexesPixels) || this.fSnapshotIndexesPixels.length != this.fIndexesPixels.length)
         {
             console.log("There was an issue with this.#fSnapshotIndexesPixels.");
             return;
         }
-        else if (!Array.isArray(this.#fSnapshotImageData) || this.#fSnapshotImageData.length != lPixelArray.length)
+        else if (!Array.isArray(this.fSnapshotImageData) || this.fSnapshotImageData.length != lPixelArray.length)
         {
             console.log("There was an issue with this.#fSnapshotImageData.");
-            console.log(this.#fSnapshotImageData);
+            // console.log(this.#fSnapshotImageData);
             return;
         }
 
-        for (let i = 0; i < this.#fSnapshotIndexesPixels.length; ++i)
+        for (let i = 0; i < this.fSnapshotIndexesPixels.length; ++i)
         {
-            this.#fIndexesPixels[i] = this.#fSnapshotIndexesPixels[i];
+            this.fIndexesPixels[i] = this.fSnapshotIndexesPixels[i];
         }
 
-        for (let i = 0; i < this.#fSnapshotImageData.length; ++i)
+        for (let i = 0; i < this.fSnapshotImageData.length; ++i)
         {
-            lPixelArray[i] = this.#fSnapshotImageData[i];
+            lPixelArray[i] = this.fSnapshotImageData[i];
         }
 
         // for (let i = this.#fSortActions.length - 1; i >= 0; --i)
@@ -379,18 +549,18 @@ class SortableImage
         // Apply action.
         if (pSortAction.type == SortAction.Type.Swap)
         {
-            if ((pSortAction.valueA >= 0 && pSortAction.valueA < this.#fIndexesPixels.length) &&
-                (pSortAction.valueB >= 0 && pSortAction.valueB < this.#fIndexesPixels.length))
+            if ((pSortAction.valueA >= 0 && pSortAction.valueA < this.fIndexesPixels.length) &&
+                (pSortAction.valueB >= 0 && pSortAction.valueB < this.fIndexesPixels.length))
             {
                 this.swap(pSortAction.valueA, pSortAction.valueB, pRecordSortAction);
             }
         }
         else
         {
-            if (pSortAction.valueA >= 0 && pSortAction.valueA < this.#fIndexesPixels.length)
+            if (pSortAction.valueA >= 0 && pSortAction.valueA < this.fIndexesPixels.length)
             {
                 // The value that was at the given index prior to the set.
-                const lIndexPixel = this.#fIndexesPixels[pSortAction.valueA];
+                const lIndexPixel = this.fIndexesPixels[pSortAction.valueA];
                 const lColourPixel = this.getPixelColour(pSortAction.valueA);//this._elements[pSortAction.valueA].value;
 
                 this.setValue(pSortAction.valueA, pSortAction.valueB, pSortAction.valueC, pRecordSortAction);
@@ -404,14 +574,14 @@ class SortableImage
 
     update()
     {
-        this.#fCanvasContext.putImageData(this.#fImageData, 0, 0);
+        this.fCanvasContext.putImageData(this.fImageData, 0, 0);
     }
 
     download()
     {
         const lLink = document.createElement('a');
         lLink.download = 'download.png';
-        lLink.href = this.#fCanvas.toDataURL();
+        lLink.href = this.fCanvas.toDataURL();
         lLink.click();
         lLink.delete;
     }
