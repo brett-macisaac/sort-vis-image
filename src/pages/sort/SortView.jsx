@@ -365,7 +365,7 @@ function SortView({ prElements, prNumElements, prIndexSelectedSortAlgo, prSpeed,
                     prOnPress = { prOnPressBtnShuffle }
                     prIsActive = { !prIsSorting }
                 />
-                <label for = "inputImage" style = { styles.labelImage }>
+                <label htmlFor = "inputImage" style = { styles.labelImage }>
                     {/* Hello */}
                     <FileUploadIcon sx = { lStyleButtonIcon } />
                     <input type = "file" id = "inputImage" style = { styles.inputImage } accept = "image/*" ref = { prRefBtnImageUpload } disabled = { prIsSorting } />

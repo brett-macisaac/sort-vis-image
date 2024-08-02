@@ -7,8 +7,8 @@ const gTesting = false;
 // The content of the app's manifest file.
 const manifest = 
 {
-    short_name: "Sort Vis",
-    name: "Sorting Visualiser",
+    short_name: "Sort Viz",
+    name: "Sorting Visualiser (Image)",
     icons: 
     [
         {
