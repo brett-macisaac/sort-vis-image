@@ -50,7 +50,7 @@ function SortView({ prElements, prNumElements, prIndexSelectedSortAlgo, prSpeed,
         {
             if (windowSize.isLandscape)
             {
-                return windowSize.height < 800 || windowSize.width < 500
+                return windowSize.height < 850 || windowSize.width < 500
             }
             else
             {
@@ -112,7 +112,7 @@ function SortView({ prElements, prNumElements, prIndexSelectedSortAlgo, prSpeed,
             let lGap = lSpaceAvailable * 0.04;
 
             // The size of each button along the direction that the buttons are arranged (i.e. either vertical or horizontal).
-            let lSize = (lSpaceAvailable - 2 * styles.conButtons.padding - 6 * lGap - 14 * styles.button.con.padding) / 7;
+            let lSize = (lSpaceAvailable - 2 * styles.conButtonsOuter.padding - 6 * lGap - 14 * styles.button.con.padding) / 7;
 
             // Make sure the size is between the min and max.
             lSize = lSize > 150 ? 150 : lSize;
@@ -164,19 +164,38 @@ function SortView({ prElements, prNumElements, prIndexSelectedSortAlgo, prSpeed,
         [ themeName, lButtonProps ]
     );
 
-    const lStyleConButtons = useMemo(
+    const lStyleConButtonsOuter = useMemo(
         () =>
         {
             if (lIsLandScape)
             {
                 return {
-                    ...styles.conButtons, ...styles.conButtonsLandScape, rowGap: lButtonProps.gap, overflowY: "scroll"
+                    ...styles.conButtonsOuter, ...styles.conButtonsLandscapeOuter, overflowY: "scroll"
                 };
             }
             else
             {
                 return {
-                    ...styles.conButtons, ...styles.conButtonsPortrait, columnGap: lButtonProps.gap, overflowX: "scroll"
+                    ...styles.conButtonsOuter, ...styles.conButtonsPortraitOuter, overflowX: "scroll"
+                };
+            }
+        },
+        [ themeName, lButtonProps, lIsLandScape ]
+    );
+
+    const lStyleConButtonsInner = useMemo(
+        () =>
+        {
+            if (lIsLandScape)
+            {
+                return {
+                    ...styles.conButtonsInner, ...styles.conButtonsLandscapeInner, rowGap: lButtonProps.gap
+                };
+            }
+            else
+            {
+                return {
+                    ...styles.conButtonsInner, ...styles.conButtonsPortraitInner, columnGap: lButtonProps.gap
                 };
             }
         },
@@ -334,48 +353,50 @@ function SortView({ prElements, prNumElements, prIndexSelectedSortAlgo, prSpeed,
             </div>
 
             {/* Render buttons */}
-            <div style = { lStyleConButtons } className = "hideScrollBar"> 
-                <ButtonStd 
-                    prIcon = { lIconBtnPlayPause }
-                    prStyles = { styles.button }
-                    prRef = { prRefBtnPlayPause }
-                    prOnPress = { prOnPlayPause }
-                />
-                <ButtonStd 
-                    prIcon = { <SkipPreviousIcon sx = { lStyleButtonIcon } /> }
-                    prStyles = { styles.button }
-                    prRef = { prRefBtnSkipPrev }
-                    prIsActive = { !prIsSorting || prIsPaused }
-                />
-                <ButtonStd 
-                    prIcon = { <SkipNextIcon sx = { lStyleButtonIcon } /> }
-                    prStyles = { styles.button }
-                    prRef = { prRefBtnSkipNext }
-                    prIsActive = { !prIsSorting || prIsPaused }
-                />
-                <ButtonStd 
-                    prIcon = { <StopIcon sx = { lStyleButtonIcon } /> }
-                    prStyles = { styles.button }
-                    prRef = { prRefBtnStop }
-                    prOnPress = { prOnPressBtnStop }
-                />
-                <ButtonStd 
-                    prIcon = { <ShuffleIcon sx = { lStyleButtonIcon } /> }
-                    prStyles = { styles.button }
-                    prOnPress = { prOnPressBtnShuffle }
-                    prIsActive = { !prIsSorting }
-                />
-                <label htmlFor = "inputImage" style = { styles.labelImage }>
-                    {/* Hello */}
-                    <FileUploadIcon sx = { lStyleButtonIcon } />
-                    <input type = "file" id = "inputImage" style = { styles.inputImage } accept = "image/*" ref = { prRefBtnImageUpload } disabled = { prIsSorting } />
-                </label>
-                <ButtonStd 
-                    prIcon = { <FileDownloadIcon sx = { lStyleButtonIcon } /> }
-                    prStyles = { styles.button }
-                    prOnPress = { prOnPressDownload }
-                    prIsActive = { !prIsSorting || prIsPaused }
-                />
+            <div style = { lStyleConButtonsOuter } className = "hideScrollBar"> 
+                <div style = { lStyleConButtonsInner }>
+                    <ButtonStd 
+                        prIcon = { lIconBtnPlayPause }
+                        prStyles = { styles.button }
+                        prRef = { prRefBtnPlayPause }
+                        prOnPress = { prOnPlayPause }
+                    />
+                    <ButtonStd 
+                        prIcon = { <SkipPreviousIcon sx = { lStyleButtonIcon } /> }
+                        prStyles = { styles.button }
+                        prRef = { prRefBtnSkipPrev }
+                        prIsActive = { !prIsSorting || prIsPaused }
+                    />
+                    <ButtonStd 
+                        prIcon = { <SkipNextIcon sx = { lStyleButtonIcon } /> }
+                        prStyles = { styles.button }
+                        prRef = { prRefBtnSkipNext }
+                        prIsActive = { !prIsSorting || prIsPaused }
+                    />
+                    <ButtonStd 
+                        prIcon = { <StopIcon sx = { lStyleButtonIcon } /> }
+                        prStyles = { styles.button }
+                        prRef = { prRefBtnStop }
+                        prOnPress = { prOnPressBtnStop }
+                    />
+                    <ButtonStd 
+                        prIcon = { <ShuffleIcon sx = { lStyleButtonIcon } /> }
+                        prStyles = { styles.button }
+                        prOnPress = { prOnPressBtnShuffle }
+                        prIsActive = { !prIsSorting }
+                    />
+                    <label htmlFor = "inputImage" style = { styles.labelImage }>
+                        {/* Hello */}
+                        <FileUploadIcon sx = { lStyleButtonIcon } />
+                        <input type = "file" id = "inputImage" style = { styles.inputImage } accept = "image/*" ref = { prRefBtnImageUpload } disabled = { prIsSorting } />
+                    </label>
+                    <ButtonStd 
+                        prIcon = { <FileDownloadIcon sx = { lStyleButtonIcon } /> }
+                        prStyles = { styles.button }
+                        prOnPress = { prOnPressDownload }
+                        prIsActive = { !prIsSorting || prIsPaused }
+                    />
+                </div>
             </div>
 
         </PageContainerStd>
@@ -414,20 +435,33 @@ const styles =
         }
     },
 
-    conButtons: 
+    conButtonsOuter: 
     {
-        // justifyContent: "center",
         padding: 10
     },
-    conButtonsLandScape: 
+    conButtonsInner: 
+    {
+        margin: "auto"
+    },
+
+    conButtonsLandscapeOuter: 
     {
         height: "100%",
-        flexDirection: "column",
     },
-    conButtonsPortrait: 
+    conButtonsLandscapeInner:
+    {
+        flexDirection: "column",
+        margin: "auto"
+    },
+
+    conButtonsPortraitOuter: 
     {
         width: "100%",
+    },
+    conButtonsPortraitInner:
+    {
         flexDirection: "row",
+        margin: "auto"
     },
 
     button:
