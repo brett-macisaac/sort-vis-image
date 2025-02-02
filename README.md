@@ -1,8 +1,25 @@
-note: when testing PWA capabilities (use Chrome, not Firefox), I've found that if the 'Update on reload' checkbox is 
-checked, this can result in the page not loading when in offline mode.
+# Description
 
-TODO:
-- Create a custom loading animation that is a small bar graph that gets constantly sorted and shuffled (or maybe a small mona lisa face that gets shuffled and sorted).
-- Implement the direction change feature.
-- Implement the inactive style for the upload image button.
-- do a vite GitHub error report with private class variables. First check chrome version, vite version, etc. Make a separate repro.
+A web app that visualises common sorting algorithms using an image. 
+
+Key Features:
+
+- A UI that adapts well to most screen sizes, including mobile devices.
+- Works when the device is offline.
+- Controls for pausing the sorting process and stepping forwards or backwards, which is useful for learning how these algorithms work.
+- Any image can be uploaded to replace the default one.
+- The speed of the sorting process can be adjusted.
+
+The most interesting visualisations occur when you attempt to sort an already sorted image in the opposite direction, as in the example below.
+
+# Example 
+
+![Example GIF](readme_resources/example.gif)
+
+# Where To Access
+
+This project has been deployed on the [web](https://www.sort-viz-img.com/) and can be run on any device with a modern web browser. 
+
+# Note for iOS Users
+
+With iOS devices, the slider component doesn't work as expected: you can still click it, but you can't use a 'drag' gesture as one would expect from a slider.
